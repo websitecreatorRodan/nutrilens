@@ -31,7 +31,10 @@ const AnalyzeFoodImageOutputSchema = z.object({
     fat: z.string().describe('Estimated fat in grams per serving.'),
   }).describe('The nutritional information for the food item.'),
   suitability: z.string().describe('A description of who can eat this food, considering common dietary restrictions like vegan, gluten-free, etc.'),
-  availability: z.string().describe('A description of where this food item is commonly available (e.g., grocery stores, farmers markets).'),
+  availability: z.object({
+    description: z.string().describe('A description of where this food item is commonly available (e.g., grocery stores, farmers markets).'),
+    googleMapsQuery: z.string().describe('A search query for Google Maps to find the item, like "grocery stores" or "farmers markets".'),
+  }).describe('Information on where to find the food item.'),
 });
 export type AnalyzeFoodImageOutput = z.infer<typeof AnalyzeFoodImageOutputSchema>;
 
@@ -46,7 +49,7 @@ Based on the image, provide the following information:
 1.  **Identify the food item.**
 2.  **Estimate the nutritional content** (calories, protein, carbs, fat) for a standard serving size.
 3.  **Describe its dietary suitability:** Mention if it's generally suitable for common diets (e.g., vegan, vegetarian, gluten-free, keto).
-4.  **Describe its common availability:** Where can someone typically buy this item (e.g., "Found in most major supermarkets, in the produce section.").
+4.  **Describe its common availability:** Where can someone typically buy this item (e.g., "Found in most major supermarkets, in the produce section."). Also provide a concise Google Maps search query (e.g., "grocery stores", "bakeries") to help find it.
 
 Image to analyze: {{media url=photoDataUri}}
 `,

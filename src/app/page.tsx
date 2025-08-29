@@ -60,6 +60,8 @@ export default function Home() {
     }
   };
 
+  const googleMapsUrl = analysis ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(analysis.availability.googleMapsQuery)}` : '';
+
   return (
     <main className="flex min-h-screen flex-col items-center gap-8 p-4 md:p-12 lg:p-24 bg-background">
       <div className="text-center">
@@ -135,7 +137,10 @@ export default function Home() {
                 </div>
                  <div>
                     <h3 className="font-semibold flex items-center gap-2 mb-2"><MapPin className="text-primary"/>Availability</h3>
-                    <p className="text-sm text-muted-foreground">{analysis.availability}</p>
+                    <p className="text-sm text-muted-foreground">{analysis.availability.description}</p>
+                    <Button asChild variant="link" className="p-0 h-auto">
+                        <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer">Find on Google Maps</a>
+                    </Button>
                 </div>
             </CardContent>
         </Card>
