@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Logs
 logs
 *.log
@@ -128,17 +129,23 @@ dist
 
 # yarn v3
 =======
+=======
+>>>>>>> 305d91b (Initialized workspace with Firebase Studio)
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
 /node_modules
 /.pnp
+<<<<<<< HEAD
+>>>>>>> 305d91b (Initialized workspace with Firebase Studio)
+=======
 >>>>>>> 305d91b (Initialized workspace with Firebase Studio)
 .pnp.*
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
+<<<<<<< HEAD
 <<<<<<< HEAD
 !.yarn/sdks
 !.yarn/versions
@@ -147,6 +154,8 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 =======
+=======
+>>>>>>> 305d91b (Initialized workspace with Firebase Studio)
 !.yarn/versions
 
 # testing
@@ -181,5 +190,9 @@ next-env.d.ts
 
 # firebase
 firebase-debug.log
+<<<<<<< HEAD
+firestore-debug.log
+>>>>>>> 305d91b (Initialized workspace with Firebase Studio)
+=======
 firestore-debug.log
 >>>>>>> 305d91b (Initialized workspace with Firebase Studio)
