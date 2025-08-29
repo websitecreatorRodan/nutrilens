@@ -3,8 +3,8 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Upload, Sparkles } from "lucide-react";
 import Image from "next/image";
 
 export default function Home() {
@@ -24,6 +24,11 @@ export default function Home() {
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleAnalyzeClick = () => {
+    // Placeholder for analysis logic
+    console.log("Analyzing image...");
   };
 
   return (
@@ -65,6 +70,12 @@ export default function Home() {
             Select Image
           </Button>
         </CardContent>
+        <CardFooter>
+            <Button onClick={handleAnalyzeClick} className="w-full" disabled={!image}>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Analyze Image
+            </Button>
+        </CardFooter>
       </Card>
     </main>
   );
