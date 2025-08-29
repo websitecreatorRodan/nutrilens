@@ -4,11 +4,13 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Upload, Sparkles, Loader2, Leaf, PersonStanding, MapPin, Heart, Shield, Droplets, Scale, Soup } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Upload, Sparkles, Loader2, Leaf, PersonStanding, MapPin, Heart, Shield, Droplets, Scale, Soup, Bot, ShieldAlert, HeartCrack, Info } from "lucide-react";
 import Image from "next/image";
 import { analyzeFoodImage, type AnalyzeFoodImageOutput } from "@/ai/flows/analyze-food-image";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   const [image, setImage] = useState<string | null>(null);
@@ -124,8 +126,26 @@ export default function Home() {
             </CardHeader>
             <CardContent className="space-y-6">
                 
+                {analysis.isSpoiled && (
+                    <Alert variant="destructive">
+                        <ShieldAlert className="h-4 w-4" />
+                        <AlertTitle>Spoilage Warning!</AlertTitle>
+                        <AlertDescription>
+                            {analysis.spoilageReason || "This food appears to be spoiled or rotten. It is not safe to eat."}
+                        </AlertDescription>
+                    </Alert>
+                )}
+
+                <Alert variant={analysis.isHealthy ? "default" : "destructive"} className={cn(analysis.isHealthy ? "bg-primary/10 border-primary/50" : "")}>
+                    {analysis.isHealthy ? <Heart className="h-4 w-4" /> : <HeartCrack className="h-4 w-4" />}
+                    <AlertTitle>Health Assessment: {analysis.isHealthy ? "Healthy" : "Not Healthy"}</AlertTitle>
+                    <AlertDescription>
+                        {analysis.healthSummary}
+                    </AlertDescription>
+                </Alert>
+                
                 <div>
-                    <h3 className="font-semibold text-lg flex items-center gap-2 mb-4"><Leaf className="text-primary"/>Nutrient Profile</h3>
+                    <h3 className="font-semibold text-lg flex items-center gap-2 mb-4"><Leaf className="text-primary"/>Nutrient Profile <span className="text-sm font-normal text-muted-foreground">(per 10g)</span></h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-3 text-sm">
                         {analysis.nutrients.map(nutrient => (
                             <div key={nutrient.name}>
@@ -178,7 +198,7 @@ export default function Home() {
                             </div>
                         </div>
                         <div className="flex gap-4 items-start">
-                            <PersonStanding className="text-primary mt-1 flex-shrink-0" />
+                            <Info className="text-primary mt-1 flex-shrink-0" />
                             <div>
                                 <h4 className="font-semibold">General</h4>
                                 <p className="text-muted-foreground">{analysis.suitability.general}</p>
