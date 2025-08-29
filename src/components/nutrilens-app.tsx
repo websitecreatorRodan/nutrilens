@@ -24,7 +24,6 @@ export function NutriLensApp() {
 
   const [foodData, setFoodData] = useLocalStorage<FoodItem[]>('nutrilens-food-data', FOOD_DATABASE);
   const [profiles, setProfiles] = useLocalStorage<DietaryProfile[]>('nutrilens-profiles', DEFAULT_PROFILES);
-  const [savedMeals, setSavedMeals] = useLocalStorage<SavedMeal[]>('nutrilens-saved-meals', []);
   
   const [currentMeal, setCurrentMeal] = useState<MealItem[]>([]);
   const [selectedFoodId, setSelectedFoodId] = useState<string>('');
@@ -37,11 +36,7 @@ export function NutriLensApp() {
 
   // Dialog states
   const [isProfileManagerOpen, setProfileManagerOpen] = useState(false);
-  const [isCustomFoodOpen, setCustomFoodOpen] = useState(false);
-  const [isSaveMealOpen, setSaveMealOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<Partial<DietaryProfile> | null>(null);
-  const [newCustomFood, setNewCustomFood] = useState({ name: '', ingredients: '', calories: '0', protein: '0', carbs: '0', fat: '0' });
-  const [newMealName, setNewMealName] = useState('');
 
   const selectedProfile = useMemo(() => profiles.find(p => p.id === selectedProfileId), [profiles, selectedProfileId]);
 
@@ -149,59 +144,6 @@ export function NutriLensApp() {
     setProfileManagerOpen(false);
   };
 
-  const handleAddCustomFood = () => {
-    const { name, ingredients, calories, protein, carbs, fat } = newCustomFood;
-    if (!name || !ingredients) {
-      toast({ title: "Error", description: "Food name and ingredients are required.", variant: "destructive" });
-      return;
-    }
-    const newFood: FoodItem = {
-      id: new Date().toISOString(),
-      name,
-      ingredients,
-      nutrition: {
-        calories: parseFloat(calories) || 0,
-        protein: parseFloat(protein) || 0,
-        carbs: parseFloat(carbs) || 0,
-        fat: parseFloat(fat) || 0,
-      }
-    };
-    setFoodData([...foodData, newFood]);
-    toast({ title: "Custom Food Added", description: `"${name}" has been added to your food list.` });
-    setCustomFoodOpen(false);
-    setNewCustomFood({ name: '', ingredients: '', calories: '0', protein: '0', carbs: '0', fat: '0' });
-  };
-  
-  const handleSaveMeal = () => {
-    if (!newMealName) {
-      toast({ title: "Error", description: "Please enter a name for your meal.", variant: "destructive" });
-      return;
-    }
-    const newMeal: SavedMeal = {
-      id: new Date().toISOString(),
-      name: newMealName,
-      items: currentMeal
-    };
-    setSavedMeals([...savedMeals, newMeal]);
-    toast({ title: "Meal Saved", description: `Meal "${newMealName}" has been saved.` });
-    setNewMealName('');
-    setSaveMealOpen(false);
-  };
-
-  const handleLoadMeal = (mealId: string) => {
-    const meal = savedMeals.find(m => m.id === mealId);
-    if (meal) {
-      setCurrentMeal(meal.items);
-      setRecommendations(null);
-      toast({ title: "Meal Loaded", description: `"${meal.name}" has been loaded.` });
-    }
-  };
-
-  const handleDeleteMeal = (mealId: string) => {
-    setSavedMeals(savedMeals.filter(m => m.id !== mealId));
-    toast({ title: "Meal Deleted" });
-  };
-
   useEffect(() => {
     if(!selectedProfileId && profiles.length > 0) {
       setSelectedProfileId(profiles[0].id)
@@ -215,20 +157,15 @@ export function NutriLensApp() {
           <NutriLensLogo className="h-8 w-8 text-primary" />
           <h1 className="text-2xl font-bold tracking-tight text-foreground">NutriLens</h1>
         </div>
-        <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => setProfileManagerOpen(true)}>Manage Profiles</Button>
-            <Button variant="ghost" size="sm" onClick={() => setCustomFoodOpen(true)}>Add Custom Food</Button>
-        </div>
+        <Button variant="ghost" size="sm" onClick={() => setProfileManagerOpen(true)}>Manage Profiles</Button>
       </header>
 
       <main className="flex-1 p-4 md:p-6 lg:p-8">
-        <div className="grid gap-8 lg:grid-cols-2">
-          {/* Left Column: Meal Builder */}
-          <div className="flex flex-col gap-8">
-            <Card className="flex-grow">
+        <div className="max-w-3xl mx-auto flex flex-col gap-8">
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><ChefHat className="text-primary"/>Build Your Meal</CardTitle>
-                <CardDescription>Add food items to create your meal and see the nutritional breakdown.</CardDescription>
+                <CardTitle className="flex items-center gap-2"><ChefHat className="text-primary"/>1. Build Your Meal</CardTitle>
+                <CardDescription>Add food items to create your meal.</CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
                 <div className="flex flex-col sm:flex-row items-end gap-2">
@@ -281,47 +218,26 @@ export function NutriLensApp() {
                 </div>
 
               </CardContent>
-              <CardFooter className="flex-col items-start gap-4">
-                  <Card className="w-full bg-secondary">
-                      <CardHeader className="pb-2">
-                          <CardTitle className="text-lg">Nutrition Summary</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                              <div><p className="font-bold text-xl text-primary">{Math.round(totalNutrition.calories)}</p><p className="text-sm text-muted-foreground">Calories</p></div>
-                              <div><p className="font-bold text-xl">{Math.round(totalNutrition.protein)}g</p><p className="text-sm text-muted-foreground">Protein</p></div>
-                              <div><p className="font-bold text-xl">{Math.round(totalNutrition.carbs)}g</p><p className="text-sm text-muted-foreground">Carbs</p></div>
-                              <div><p className="font-bold text-xl">{Math.round(totalNutrition.fat)}g</p><p className="text-sm text-muted-foreground">Fat</p></div>
-                          </div>
-                      </CardContent>
-                  </Card>
-                  
-                  <div className="flex flex-col sm:flex-row gap-2 w-full">
-                    <Button onClick={() => setSaveMealOpen(true)} disabled={currentMeal.length === 0} className="w-full sm:w-auto"><Save className="mr-2 h-4 w-4"/>Save Meal</Button>
-                    <Select onValueChange={handleLoadMeal} disabled={savedMeals.length === 0}>
-                      <SelectTrigger className="w-full sm:flex-1"><SelectValue placeholder="Load a saved meal" /></SelectTrigger>
-                      <SelectContent>
-                        {savedMeals.map(meal => (
-                          <div key={meal.id} className="flex items-center pr-2">
-                            <SelectItem value={meal.id} className="flex-1">{meal.name}</SelectItem>
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); handleDeleteMeal(meal.id); }}>
-                              <X className="h-4 w-4 text-muted-foreground" />
-                            </Button>
-                          </div>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-              </CardFooter>
             </Card>
-          </div>
+
+            <Card className="w-full bg-secondary">
+                <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Nutrition Summary</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                        <div><p className="font-bold text-xl text-primary">{Math.round(totalNutrition.calories)}</p><p className="text-sm text-muted-foreground">Calories</p></div>
+                        <div><p className="font-bold text-xl">{Math.round(totalNutrition.protein)}g</p><p className="text-sm text-muted-foreground">Protein</p></div>
+                        <div><p className="font-bold text-xl">{Math.round(totalNutrition.carbs)}g</p><p className="text-sm text-muted-foreground">Carbs</p></div>
+                        <div><p className="font-bold text-xl">{Math.round(totalNutrition.fat)}g</p><p className="text-sm text-muted-foreground">Fat</p></div>
+                    </div>
+                </CardContent>
+            </Card>
           
-          {/* Right Column: Dietary Analysis */}
-          <div className="flex flex-col gap-8">
-            <Card className="flex-grow">
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Heart className="text-primary"/>Dietary Analysis</CardTitle>
-                <CardDescription>Select a profile to analyze your meal for dietary needs and allergies.</CardDescription>
+                <CardTitle className="flex items-center gap-2"><Heart className="text-primary"/>2. Get Dietary Analysis</CardTitle>
+                <CardDescription>Select a profile and get AI-powered recommendations.</CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
                 <div className="grid gap-1.5">
@@ -338,49 +254,44 @@ export function NutriLensApp() {
                   Get Recommendations
                 </Button>
               </CardContent>
-              <CardContent>
-                  <Separator className="mb-4" />
-                  <div className="space-y-4">
-                  {isLoading && (
-                    <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground p-8">
-                      <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                      <p className="font-semibold">Analyzing your meal...</p>
-                      <p className="text-sm">Our AI is checking ingredients against your profile.</p>
+              { (isLoading || recommendations) &&
+                <CardContent>
+                    <Separator className="mb-4" />
+                    <div className="space-y-4">
+                    {isLoading && (
+                      <div className="flex flex-col items-center justify-center gap-4 text-muted-foreground p-8">
+                        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                        <p className="font-semibold">Analyzing your meal...</p>
+                        <p className="text-sm">Our AI is checking ingredients against your profile.</p>
+                      </div>
+                    )}
+                    {recommendations && (
+                      <div className="space-y-4 animate-in fade-in-50">
+                        <h3 className="text-lg font-semibold">Analysis Complete for <span className="text-primary">{selectedProfile?.name}</span></h3>
+                        {recommendations.map((rec, index) => (
+                          <Card key={index} className={cn(
+                            "transition-all",
+                            rec.isSuitable ? "border-green-500/50" : "border-red-500/50"
+                          )}>
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-base">{rec.foodItemName}</CardTitle>
+                                {rec.isSuitable ? 
+                                  <CheckCircle className="h-6 w-6 text-green-500" /> : 
+                                  <AlertCircle className="h-6 w-6 text-red-500" />
+                                }
+                            </CardHeader>
+                            <CardContent>
+                                <p className={cn("text-sm", rec.isSuitable ? "text-muted-foreground" : "text-red-600 dark:text-red-400 font-medium")}>{rec.reason || "This item looks suitable for your profile."}</p>
+                                <p className="text-xs text-muted-foreground mt-2">{rec.recommendation}</p>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
                     </div>
-                  )}
-                  {recommendations && (
-                    <div className="space-y-4 animate-in fade-in-50">
-                      <h3 className="text-lg font-semibold">Analysis Complete for <span className="text-primary">{selectedProfile?.name}</span></h3>
-                      {recommendations.map((rec, index) => (
-                        <Card key={index} className={cn(
-                          "transition-all",
-                          rec.isSuitable ? "border-green-500/50" : "border-red-500/50"
-                        )}>
-                          <CardHeader className="flex flex-row items-center justify-between pb-2">
-                              <CardTitle className="text-base">{rec.foodItemName}</CardTitle>
-                              {rec.isSuitable ? 
-                                <CheckCircle className="h-6 w-6 text-green-500" /> : 
-                                <AlertCircle className="h-6 w-6 text-red-500" />
-                              }
-                          </CardHeader>
-                          <CardContent>
-                              <p className={cn("text-sm", rec.isSuitable ? "text-muted-foreground" : "text-red-600 dark:text-red-400 font-medium")}>{rec.reason || "This item looks suitable for your profile."}</p>
-                              <p className="text-xs text-muted-foreground mt-2">{rec.recommendation}</p>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                  {!isLoading && !recommendations && (
-                    <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-8">
-                       <p className="font-semibold">Ready to Analyze</p>
-                       <p className="text-sm">Click "Get Recommendations" to see the AI analysis.</p>
-                    </div>
-                  )}
-                  </div>
-              </CardContent>
+                </CardContent>
+              }
             </Card>
-          </div>
         </div>
       </main>
 
@@ -423,33 +334,6 @@ export function NutriLensApp() {
               <Button onClick={() => setEditingProfile({})}><UserPlus className="mr-2 h-4 w-4"/>Create New Profile</Button>
             )}
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Custom Food Dialog */}
-      <Dialog open={isCustomFoodOpen} onOpenChange={setCustomFoodOpen}>
-        <DialogContent>
-            <DialogHeader><DialogTitle>Add Custom Food</DialogTitle><DialogDescription>Add your own food item to the database. Nutrition values should be per 100g.</DialogDescription></DialogHeader>
-            <div className="grid gap-4 py-4">
-                <div className="grid gap-2"><Label htmlFor="cf-name">Food Name</Label><Input id="cf-name" value={newCustomFood.name} onChange={e => setNewCustomFood({...newCustomFood, name: e.target.value})} /></div>
-                <div className="grid gap-2"><Label htmlFor="cf-ing">Ingredients (comma separated)</Label><Input id="cf-ing" value={newCustomFood.ingredients} onChange={e => setNewCustomFood({...newCustomFood, ingredients: e.target.value})} /></div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2"><Label htmlFor="cf-cal">Calories</Label><Input id="cf-cal" type="number" value={newCustomFood.calories} onChange={e => setNewCustomFood({...newCustomFood, calories: e.target.value})} /></div>
-                    <div className="grid gap-2"><Label htmlFor="cf-pro">Protein (g)</Label><Input id="cf-pro" type="number" value={newCustomFood.protein} onChange={e => setNewCustomFood({...newCustomFood, protein: e.target.value})} /></div>
-                    <div className="grid gap-2"><Label htmlFor="cf-car">Carbs (g)</Label><Input id="cf-car" type="number" value={newCustomFood.carbs} onChange={e => setNewCustomFood({...newCustomFood, carbs: e.target.value})} /></div>
-                    <div className="grid gap-2"><Label htmlFor="cf-fat">Fat (g)</Label><Input id="cf-fat" type="number" value={newCustomFood.fat} onChange={e => setNewCustomFood({...newCustomFood, fat: e.target.value})} /></div>
-                </div>
-            </div>
-            <DialogFooter><Button onClick={handleAddCustomFood}>Save Food</Button></DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Save Meal Dialog */}
-      <Dialog open={isSaveMealOpen} onOpenChange={setSaveMealOpen}>
-        <DialogContent>
-            <DialogHeader><DialogTitle>Save Meal</DialogTitle><DialogDescription>Give your current meal a name to save it for later.</DialogDescription></DialogHeader>
-            <div className="grid gap-2 py-4"><Label htmlFor="meal-name">Meal Name</Label><Input id="meal-name" value={newMealName} onChange={e => setNewMealName(e.target.value)} /></div>
-            <DialogFooter><Button onClick={handleSaveMeal}>Save Meal</Button></DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
