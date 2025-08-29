@@ -4,10 +4,11 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Upload, Sparkles, Loader2, Leaf, PersonStanding, MapPin } from "lucide-react";
+import { Upload, Sparkles, Loader2, Leaf, PersonStanding, MapPin, Heart, Shield, Droplets } from "lucide-react";
 import Image from "next/image";
 import { analyzeFoodImage, type AnalyzeFoodImageOutput } from "@/ai/flows/analyze-food-image";
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
 
 export default function Home() {
   const [image, setImage] = useState<string | null>(null);
@@ -69,7 +70,7 @@ export default function Home() {
         <p className="text-muted-foreground mt-2">Upload an image of food to learn more about it.</p>
       </div>
 
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle>Upload Food Image</CardTitle>
         </CardHeader>
@@ -116,30 +117,69 @@ export default function Home() {
       )}
 
       {analysis && (
-        <Card className="w-full max-w-md animate-in fade-in-50">
+        <Card className="w-full max-w-2xl animate-in fade-in-50">
             <CardHeader>
                 <CardTitle>{analysis.foodName}</CardTitle>
-                <CardDescription>Here's the nutritional analysis of the food item.</CardDescription>
+                <CardDescription>Here's the detailed analysis of the food item.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
+                
                 <div>
-                    <h3 className="font-semibold flex items-center gap-2 mb-2"><Leaf className="text-primary"/>Nutrients (per serving)</h3>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                        <p><strong>Calories:</strong> {analysis.nutrients.calories}</p>
-                        <p><strong>Protein:</strong> {analysis.nutrients.protein}</p>
-                        <p><strong>Carbs:</strong> {analysis.nutrients.carbs}</p>
-                        <p><strong>Fat:</strong> {analysis.nutrients.fat}</p>
+                    <h3 className="font-semibold text-lg flex items-center gap-2 mb-4"><Leaf className="text-primary"/>Nutrient Profile</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-3 text-sm">
+                        {analysis.nutrients.map(nutrient => (
+                            <div key={nutrient.name}>
+                                <span className="font-semibold">{nutrient.name}:</span>
+                                <span className="text-muted-foreground ml-2">{nutrient.amount}</span>
+                                <p className="text-xs text-muted-foreground/80 italic"> - {nutrient.importance}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
+
+                <Separator />
+
                  <div>
-                    <h3 className="font-semibold flex items-center gap-2 mb-2"><PersonStanding className="text-primary"/>Dietary Suitability</h3>
-                    <p className="text-sm text-muted-foreground">{analysis.suitability}</p>
+                    <h3 className="font-semibold text-lg flex items-center gap-2 mb-4"><PersonStanding className="text-primary"/>Dietary Suitability</h3>
+                    <div className="space-y-4 text-sm">
+                        <div className="flex gap-4 items-start">
+                            <Droplets className="text-primary mt-1 flex-shrink-0" />
+                            <div>
+                                <h4 className="font-semibold">Diabetes</h4>
+                                <p className="text-muted-foreground">{analysis.suitability.diabetes}</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4 items-start">
+                            <Heart className="text-primary mt-1 flex-shrink-0" />
+                            <div>
+                                <h4 className="font-semibold">Cholesterol</h4>
+                                <p className="text-muted-foreground">{analysis.suitability.cholesterol}</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4 items-start">
+                            <Shield className="text-primary mt-1 flex-shrink-0" />
+                            <div>
+                                <h4 className="font-semibold">Allergies</h4>
+                                <p className="text-muted-foreground">{analysis.suitability.allergies}</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4 items-start">
+                            <PersonStanding className="text-primary mt-1 flex-shrink-0" />
+                            <div>
+                                <h4 className="font-semibold">General</h4>
+                                <p className="text-muted-foreground">{analysis.suitability.general}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                
+                <Separator />
+
                  <div>
-                    <h3 className="font-semibold flex items-center gap-2 mb-2"><MapPin className="text-primary"/>Availability</h3>
+                    <h3 className="font-semibold text-lg flex items-center gap-2 mb-2"><MapPin className="text-primary"/>Availability</h3>
                     <p className="text-sm text-muted-foreground">{analysis.availability.description}</p>
-                    <Button asChild variant="link" className="p-0 h-auto">
-                        <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer">Find on Google Maps</a>
+                    <Button asChild variant="link" className="p-0 h-auto mt-1">
+                        <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer">Find near you on Google Maps</a>
                     </Button>
                 </div>
             </CardContent>
