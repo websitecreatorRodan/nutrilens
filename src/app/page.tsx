@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Upload, Sparkles, Loader2, Leaf, PersonStanding, MapPin, Heart, Shield, Droplets } from "lucide-react";
+import { Upload, Sparkles, Loader2, Leaf, PersonStanding, MapPin, Heart, Shield, Droplets, Scale, Soup } from "lucide-react";
 import Image from "next/image";
 import { analyzeFoodImage, type AnalyzeFoodImageOutput } from "@/ai/flows/analyze-food-image";
 import { useToast } from "@/hooks/use-toast";
@@ -149,11 +149,11 @@ export default function Home() {
                                 <p className="text-muted-foreground">{analysis.suitability.diabetes}</p>
                             </div>
                         </div>
-                        <div className="flex gap-4 items-start">
+                         <div className="flex gap-4 items-start">
                             <Heart className="text-primary mt-1 flex-shrink-0" />
                             <div>
-                                <h4 className="font-semibold">Cholesterol</h4>
-                                <p className="text-muted-foreground">{analysis.suitability.cholesterol}</p>
+                                <h4 className="font-semibold">Heart Health</h4>
+                                <p className="text-muted-foreground">{analysis.suitability.heartHealth}</p>
                             </div>
                         </div>
                         <div className="flex gap-4 items-start">
@@ -161,6 +161,20 @@ export default function Home() {
                             <div>
                                 <h4 className="font-semibold">Allergies</h4>
                                 <p className="text-muted-foreground">{analysis.suitability.allergies}</p>
+                            </div>
+                        </div>
+                         <div className="flex gap-4 items-start">
+                            <Scale className="text-primary mt-1 flex-shrink-0" />
+                            <div>
+                                <h4 className="font-semibold">Weight Management</h4>
+                                <p className="text-muted-foreground">{analysis.suitability.weightManagement}</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4 items-start">
+                            <Soup className="text-primary mt-1 flex-shrink-0" />
+                            <div>
+                                <h4 className="font-semibold">Gut Health</h4>
+                                <p className="text-muted-foreground">{analysis.suitability.gutHealth}</p>
                             </div>
                         </div>
                         <div className="flex gap-4 items-start">

@@ -33,6 +33,9 @@ const AnalyzeFoodImageOutputSchema = z.object({
     diabetes: z.string().describe('Advice for people with diabetes.'),
     allergies: z.string().describe('Information on common allergens.'),
     cholesterol: z.string().describe('Information regarding cholesterol.'),
+    heartHealth: z.string().describe('Information regarding heart health.'),
+    weightManagement: z.string().describe('Information regarding weight management.'),
+    gutHealth: z.string().describe('Information regarding gut health and digestion.'),
     general: z.string().describe('A general description of who can eat this food.'),
   }).describe('Detailed dietary suitability information.'),
   availability: z.object({
@@ -56,6 +59,9 @@ Based on the image, provide the following information:
     - **Diabetes:** Can someone with diabetes eat this? What should they consider?
     - **Allergies:** Does it contain common allergens?
     - **Cholesterol:** How does it impact cholesterol levels?
+    - **Heart Health:** How does it impact heart health?
+    - **Weight Management:** Is it suitable for weight loss or weight gain?
+    - **Gut Health:** How does it affect digestion and gut health?
     - **General:** Provide a general summary of its suitability for common diets (e.g., vegan, keto).
 4.  **Availability:** Describe where to buy it and provide a concise Google Maps search query.
 
