@@ -187,8 +187,7 @@ export default function Home() {
                             <Scale className="text-primary mt-1 flex-shrink-0" />
                             <div>
                                 <h4 className="font-semibold">Weight Management</h4>
-                                <p className="text-muted-foreground">{analysis.suitability.weightManagement}</p>
-                            </div>
+                                <p className="text-muted-foreground">{analysis.suitability.weightManagement}</p>                            </div>
                         </div>
                         <div className="flex gap-4 items-start">
                             <Soup className="text-primary mt-1 flex-shrink-0" />
