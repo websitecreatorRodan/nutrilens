@@ -44,7 +44,7 @@ export default function Home() {
         }
 
         try {
-          const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+          const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
           setStream(mediaStream);
           setHasCameraPermission(true);
           if (videoRef.current) {
