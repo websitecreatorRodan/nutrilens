@@ -24,11 +24,15 @@ export type AnalyzeFoodImageInput = z.infer<typeof AnalyzeFoodImageInputSchema>;
 // Define the output schema
 const AnalyzeFoodImageOutputSchema = z.object({
   foodName: z.string().describe('The name of the identified food item.'),
+  isSpoiled: z.boolean().describe('Whether the food item in the image appears to be spoiled or rotten.'),
+  spoilageReason: z.string().optional().describe('A brief explanation if the food is considered spoiled.'),
+  isHealthy: z.boolean().describe('A general assessment of whether the food is healthy for an average person.'),
+  healthSummary: z.string().describe('A brief summary explaining why the food is considered healthy or not.'),
   nutrients: z.array(z.object({
     name: z.string().describe('The name of the nutrient (e.g., Vitamin C, Protein).'),
-    amount: z.string().describe('The estimated amount per serving (e.g., 95 mg, 20g).'),
+    amount: z.string().describe('The estimated amount per 10 gram serving (e.g., 9.5 mg, 2g).'),
     importance: z.string().describe('The importance of the nutrient in 3-4 words.'),
-  })).describe('An array of up to 20 key nutrients found in the food item.'),
+  })).describe('An array of up to 20 key nutrients found in the food item, calculated for a 10-gram serving.'),
   suitability: z.object({
     diabetes: z.string().describe('Advice for people with diabetes.'),
     allergies: z.string().describe('Information on common allergens.'),
@@ -50,20 +54,22 @@ const analyzeFoodPrompt = ai.definePrompt({
   name: 'analyzeFoodPrompt',
   input: { schema: AnalyzeFoodImageInputSchema },
   output: { schema: AnalyzeFoodImageOutputSchema },
-  prompt: `You are an expert nutritionist and food sourcing specialist. Analyze the attached image of a food item.
+  prompt: `You are an expert nutritionist and food inspector. Analyze the attached image of a food item.
 
 Based on the image, provide the following information:
 1.  **Identify the food item.**
-2.  **Nutritional Content:** Provide a list of up to 20 important nutrients (vitamins, minerals, macronutrients). For each, list its name, estimated amount per standard serving, and its importance in 3-4 words (e.g., "Supports immune system").
-3.  **Dietary Suitability:** Provide specific advice for the following:
+2.  **Spoilage Check:** Assess if the food appears rotten, moldy, or otherwise spoiled. Set 'isSpoiled' to true if it is, and provide a brief 'spoilageReason'.
+3.  **Health Assessment:** Determine if the food is generally considered healthy. Set 'isHealthy' and provide a concise 'healthSummary'.
+4.  **Nutritional Content (per 10g):** Provide a list of up to 20 important nutrients. For each, list its name, estimated amount per **10 grams**, and its importance in 3-4 words.
+5.  **Dietary Suitability:** Provide specific advice for the following:
     - **Diabetes:** Can someone with diabetes eat this? What should they consider?
     - **Allergies:** Does it contain common allergens?
     - **Cholesterol:** How does it impact cholesterol levels?
     - **Heart Health:** How does it impact heart health?
     - **Weight Management:** Is it suitable for weight loss or weight gain?
     - **Gut Health:** How does it affect digestion and gut health?
-    - **General:** Provide a general summary of its suitability for common diets (e.g., vegan, keto).
-4.  **Availability:** Describe where to buy it and provide a concise Google Maps search query.
+    - **General:** Provide a general summary of its suitability for common diets.
+6.  **Availability:** Describe where to buy it and provide a concise Google Maps search query.
 
 Image to analyze: {{media url=photoDataUri}}
 `,
